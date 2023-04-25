@@ -18,8 +18,8 @@ struct MainView: View {
     @State var selectedTabItem: [String] = ["main", "account", "search"]
     
     // side bar menu
-    @State var menuSidebarItem: [String] = ["我的帳號", "店家查詢", "登出"]
-    @State var menuSidebarIcon: [String] = ["person.fill", "magnifyingglass", "rectangle.portrait.and.arrow.right"]
+    @State var menuSidebarItem: [String] = ["我的帳號", "店家查詢", "最愛店家", "登出"]
+    @State var menuSidebarIcon: [String] = ["person.fill", "magnifyingglass", "star.fill", "rectangle.portrait.and.arrow.right"]
     
     var body: some View {
         NavigationStack {
@@ -106,7 +106,7 @@ struct MainView: View {
                             .shadow(radius: 5)
                         
                         VStack(alignment: .leading) {
-                            // "我的帳號"和"地圖"按鈕
+                            // "我的帳號"和"查詢店家"按鈕
                             ForEach(0 ..< 2) { index in
                                 Button(action: {
                                     selectedTab = selectedTabItem[index+1]
@@ -124,16 +124,32 @@ struct MainView: View {
                                 .foregroundColor(.black)
                                 Divider()
                             }
-                           
+                            
+                            // 我的最愛
+                            Button(action: {
+                                title = menuSidebarItem[2]
+                                icon = menuSidebarIcon[2]
+                                sidebarPressed.toggle()
+                            }, label: {
+                                HStack {
+                                    Text(menuSidebarItem[2])
+                                    Spacer()
+                                    Image(systemName: menuSidebarIcon[2])
+                                }
+                            })
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            Divider()
+                            
                             // 登出
                             Button(action: {
                                 ShareInfoManager.shared.clearAll()
                                 ShareInfoManager.shared.isLogin.toggle()
                             }, label: {
                                 HStack {
-                                    Text(menuSidebarItem[2])
+                                    Text(menuSidebarItem[3])
                                     Spacer()
-                                    Image(systemName: menuSidebarIcon[2])
+                                    Image(systemName: menuSidebarIcon[3])
                                 }
                             })
                             .fontWeight(.bold)
