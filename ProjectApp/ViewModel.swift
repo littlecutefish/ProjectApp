@@ -50,7 +50,7 @@ class MainViewModel: ObservableObject {
         ]
         numOfTable = self.table.count
         emptyTablePressedDownScreen = []
-    }    
+    }
 }
 
 

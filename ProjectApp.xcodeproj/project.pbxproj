@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6A51683429F7FD33000AB55B /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A51683329F7FD33000AB55B /* SearchViewModel.swift */; };
+		6A51683729F80024000AB55B /* MerchantInfoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A51683629F80024000AB55B /* MerchantInfoModel.swift */; };
 		6A73777129E2E384007D690A /* ProjectAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A73777029E2E384007D690A /* ProjectAppApp.swift */; };
 		6A73777529E2E386007D690A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A73777429E2E386007D690A /* Assets.xcassets */; };
 		6A73777829E2E386007D690A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6A73777729E2E386007D690A /* Preview Assets.xcassets */; };
@@ -29,6 +31,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6A51683329F7FD33000AB55B /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		6A51683629F80024000AB55B /* MerchantInfoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchantInfoModel.swift; sourceTree = "<group>"; };
 		6A73776D29E2E384007D690A /* ProjectApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ProjectApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A73777029E2E384007D690A /* ProjectAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAppApp.swift; sourceTree = "<group>"; };
 		6A73777429E2E386007D690A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -62,6 +66,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6A51683529F8000E000AB55B /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				6A51683629F80024000AB55B /* MerchantInfoModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		6A73776429E2E384007D690A = {
 			isa = PBXGroup;
 			children = (
@@ -150,6 +162,7 @@
 		6AC2AF0129ED875700B0AE83 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				6A51683529F8000E000AB55B /* Model */,
 				6AC2AF0929EED11800B0AE83 /* ViewModel */,
 				6AC2AF0229ED877B00B0AE83 /* View */,
 			);
@@ -172,6 +185,7 @@
 			children = (
 				6AC2AF0729EED02700B0AE83 /* HomeViewModel.swift */,
 				6AC2AF1529F41DD600B0AE83 /* AccountViewModel.swift */,
+				6A51683329F7FD33000AB55B /* SearchViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -260,10 +274,12 @@
 				6AC2AEF829ED7D9F00B0AE83 /* LoginViewModel.swift in Sources */,
 				6AC2AF0B29F0316A00B0AE83 /* AccountView.swift in Sources */,
 				6A73777F29E2E41A007D690A /* ColorExtension.swift in Sources */,
+				6A51683429F7FD33000AB55B /* SearchViewModel.swift in Sources */,
 				6A73778329E2FF6F007D690A /* LoggingStatus.swift in Sources */,
 				6AC2AEFC29ED820200B0AE83 /* RegisterViewModel.swift in Sources */,
 				6AC2AF0829EED02700B0AE83 /* HomeViewModel.swift in Sources */,
 				6A73777129E2E384007D690A /* ProjectAppApp.swift in Sources */,
+				6A51683729F80024000AB55B /* MerchantInfoModel.swift in Sources */,
 				6AC2AF1229F3F61E00B0AE83 /* UserInfoModel.swift in Sources */,
 				6AC2AEFA29ED80AA00B0AE83 /* RegisterView.swift in Sources */,
 				6AC2AEF629ED7C1E00B0AE83 /* LoginView.swift in Sources */,

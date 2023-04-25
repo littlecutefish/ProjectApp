@@ -21,6 +21,8 @@ struct MainView: View {
     @State var menuSidebarItem: [String] = ["我的帳號", "店家查詢", "最愛店家", "登出"]
     @State var menuSidebarIcon: [String] = ["person.fill", "magnifyingglass", "star.fill", "rectangle.portrait.and.arrow.right"]
     
+    @State var cheakToLogOut: Bool = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -50,7 +52,7 @@ struct MainView: View {
                                 }
                             
                             // 中下方的地圖tabview
-                            SearchView()
+                            SearchView(vm: SearchViewModel())
                                 .tabItem {
                                     Image(systemName: "magnifyingglass")
                                     Text("店家查詢")
@@ -87,6 +89,49 @@ struct MainView: View {
                         if sidebarPressed {
                             TopSideBarMenu
                             // TODO: 加入我的最愛
+                        }
+
+                        // 二次確認是否要登出
+                        if cheakToLogOut {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .foregroundColor(Color(hex: "ECD2D2"))
+                                VStack{
+                                    Text("您選擇要登出？")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .padding()
+                                    HStack {
+                                        Button {
+                                            ShareInfoManager.shared.clearAll()
+                                            ShareInfoManager.shared.isLogin.toggle()
+                                        } label: {
+                                            Text("確認登出")
+                                                .padding()
+                                                .background {
+                                                    RoundedRectangle(cornerRadius: 5)
+                                                        .stroke(Color.black, lineWidth: 2)
+                                                }
+                                        }
+                                        
+                                        Button {
+                                            sidebarPressed.toggle()
+                                            cheakToLogOut.toggle()
+                                        } label: {
+                                            Text("取消")
+                                                .padding()
+                                                .background {
+                                                    RoundedRectangle(cornerRadius: 5)
+                                                        .stroke(Color.black, lineWidth: 2)
+                                                }
+                                        }
+                                    }
+                                    .foregroundColor(.black)
+                                    .frame(height: 25)
+                                }
+                            }
+                            .shadow(radius: 10)
+                            .frame(width: 200, height: 150)
                         }
                     }
                 }
@@ -143,8 +188,7 @@ struct MainView: View {
                             
                             // 登出
                             Button(action: {
-                                ShareInfoManager.shared.clearAll()
-                                ShareInfoManager.shared.isLogin.toggle()
+                                cheakToLogOut.toggle()
                             }, label: {
                                 HStack {
                                     Text(menuSidebarItem[3])

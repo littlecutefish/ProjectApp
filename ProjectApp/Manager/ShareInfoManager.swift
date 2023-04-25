@@ -19,6 +19,8 @@ class ShareInfoManager: ObservableObject {
     @Published var password: String = ""
     @Published var showPassword: String = ""
     @Published var email: String = ""
+    
+    @Published var myFavMerchantID: [String] = []
         
     func clearAll() {
         self.account.removeAll()
