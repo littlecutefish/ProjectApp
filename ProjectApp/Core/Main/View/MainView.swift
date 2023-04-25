@@ -86,7 +86,6 @@ struct MainView: View {
                         // 如果點擊side bar的按鈕，會打開side bar欄
                         if sidebarPressed {
                             TopSideBarMenu
-                            
                             // TODO: 加入我的最愛
                         }
                     }

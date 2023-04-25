@@ -89,11 +89,9 @@ struct HomeView: View {
         VStack{
             // 剩餘等待時間的 Hstack
             tableInformationButton
-            
             ZStack {
                 // waiting time screen
                 VStack {
-                    
                     // 等待剩餘時間的HStack
                     waitingTimeScreen
                         .padding(.bottom)

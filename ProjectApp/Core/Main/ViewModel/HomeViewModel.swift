@@ -49,6 +49,7 @@ class HomeViewModel: ObservableObject {
     
     // 顯示空桌的桌號（存在string裏面）
     func emptyTableString(count: Int) -> String {
+        
         var emptyTable: String = ""
         var temp: Int = 0
         

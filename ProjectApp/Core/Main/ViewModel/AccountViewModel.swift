@@ -36,6 +36,7 @@ class AccountViewModel: ObservableObject {
             phoneNumber: "",
             photo: ""
         )
+        
         Task {
             let uploadResult = await DatabaseManager.shared.uploadData(to: editDatabaseURL, data: editUserInfo, httpMethod: "PUT")
             switch uploadResult {

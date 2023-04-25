@@ -15,6 +15,7 @@ class DatabaseManager {
     
     // Public Function
     func uploadData(to urlString: String, data: Encodable, httpMethod: String = "POST") async -> Result<(Data, Int), UploadDataError> {
+        
         // 網址
         guard let url = URL(string: urlString) else {
             return .failure(.urlPathError)

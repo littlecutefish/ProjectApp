@@ -79,3 +79,4 @@ class RegisterViewModel: ObservableObject {
             .store(in: &cancellable)
     }
 }
+

@@ -25,6 +25,7 @@ struct SearchView: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke(Color(hex: "715428"), lineWidth: 2)
                         )
+                    
                     HStack{
                         Image(systemName: "magnifyingglass")
                             .frame(width: 40)

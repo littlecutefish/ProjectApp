@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct LoggingStatus: View {
-    
     @StateObject var shareInfoManger = ShareInfoManager.shared
     
     var body: some View {

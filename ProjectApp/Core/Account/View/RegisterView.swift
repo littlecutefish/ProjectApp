@@ -131,7 +131,6 @@ struct RegisterView: View {
 }
 
 fileprivate struct TextFieldForRegister: View {
-    
     @EnvironmentObject var vm: MainViewModel
     
     var index: Int

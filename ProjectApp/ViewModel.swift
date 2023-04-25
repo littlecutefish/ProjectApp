@@ -50,9 +50,9 @@ class MainViewModel: ObservableObject {
         ]
         numOfTable = self.table.count
         emptyTablePressedDownScreen = []
-    }
-    
+    }    
 }
+
 
 extension View {
     func withCustomModifier() -> some View {
