@@ -19,7 +19,8 @@ class SearchViewModel: ObservableObject {
     // Pubilc function
     func searchMerchantName() {
         let merchantInfo = MerchantInfoModel(name: merchantName)
-        print(merchantName)
+        searchedMerchant = []
+        
         Task {
             let searchResult = await DatabaseManager.shared.uploadData(to: getMerchantURL, data: merchantInfo, httpMethod: "POST")
             
@@ -30,13 +31,16 @@ class SearchViewModel: ObservableObject {
                     return
                 }
                 await MainActor.run {
-                    searchedMerchant = []
                     searchedMerchant = merchantInfo
                 }
+                print("success")
                 print(merchantInfo)
+                
             case .failure(let errorStatus):
                 print(errorStatus.rawValue)
+                print("failure")
             }
+            print(merchantName)
         }
     }
 }

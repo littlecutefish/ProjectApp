@@ -68,7 +68,7 @@ extension MerchantInfoModel {
         } else {
             self.photo = ""
         }
-        if var myFav = try? container.decode(Bool.self, forKey: .myFav) {
+        if let myFav = try? container.decode(Bool.self, forKey: .myFav) {
             self.myFav = myFav
         } else {
             self.myFav = false
