@@ -8,36 +8,50 @@
 import Foundation
 
 struct MerchantInfoModel: Identifiable, Codable {
-    let uid: String
-    let name: String
-    let phoneNumber: String
-    let location: String
-    let intro: String
-    let photo: String
-    var myFav: Bool
+    var customerUid: String
+    var merchantUid: String
+    var uid: String
+    var name: String
+    var phoneNumber: String
+    var location: String
+    var intro: String
+    var photo: String
+    var favorite: Bool
     var id: String { uid }
 }
 
 extension MerchantInfoModel {
-    init(name: String) {
+    init(customerUid: String, merchantUid: String, name: String) {
+        self.customerUid = customerUid
+        self.merchantUid = merchantUid
         self.name = name
         self.uid = UUID().uuidString
         self.phoneNumber = ""
         self.location = ""
         self.photo = ""
         self.intro = ""
-        self.myFav = false
+        self.favorite = false
     }
 }
 
 extension MerchantInfoModel {
     
     enum CodingKeys: CodingKey {
-        case uid, name, phoneNumber, location, intro, photo, myFav
+        case customerUid, merchantUid, uid, name, phoneNumber, location, intro, photo, favorite
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let merchantUid = try? container.decode(String.self, forKey: .merchantUid) {
+            self.merchantUid = merchantUid
+        } else {
+            self.merchantUid = ShareInfoManager.shared.merchant.uid
+        }
+        if let customerUid = try? container.decode(String.self, forKey: .customerUid) {
+            self.customerUid = customerUid
+        } else {
+            self.customerUid = ShareInfoManager.shared.uid
+        }
         if let uid = try? container.decode(String.self, forKey: .uid) {
             self.uid = uid
         } else {
@@ -68,10 +82,10 @@ extension MerchantInfoModel {
         } else {
             self.photo = ""
         }
-        if let myFav = try? container.decode(Bool.self, forKey: .myFav) {
-            self.myFav = myFav
+        if let favorite = try? container.decode(Bool.self, forKey: .favorite) {
+            self.favorite = favorite
         } else {
-            self.myFav = false
+            self.favorite = false
         }
     }
 }

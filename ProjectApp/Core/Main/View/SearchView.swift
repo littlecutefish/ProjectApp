@@ -9,13 +9,9 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @ObservedObject var vm : SearchViewModel
+    @StateObject var vm : SearchViewModel
     
     @State var searchButton: Bool = false
-    
-    @State var favorateButton: Bool = false
-    @State var favorateButton2: Bool = false
-    
     @State var selectedMerchant: Bool = false
     
     var body: some View {
@@ -29,6 +25,9 @@ struct SearchView: View {
                 ZStack {
                     storeInformSection
                     searchSection
+                    if !searchButton {
+                        storeInformSection
+                    }
                 }
                 .padding([.leading, .trailing],35)
             }
@@ -63,7 +62,7 @@ struct SearchView: View {
         }
         .frame(height: 50)
         .padding([.top, .leading, .trailing],30)
-
+        
     }
     
     // 店家資訊
@@ -73,6 +72,7 @@ struct SearchView: View {
                 Circle()
                     .foregroundColor(.white)
                     .overlay {
+                        // TODO: 放照片
                         Text("photo")
                     }
                 ZStack {
@@ -98,26 +98,32 @@ struct SearchView: View {
                     .foregroundColor(.white.opacity(0.4))
                 VStack {
                     HStack {
-                        Text("店名")
+                        Text(vm.showedMerchant.name == "" ? "店名" : vm.showedMerchant.name)
                             .font(.title2)
                             .fontWeight(.bold)
                         Spacer()
                         
                         Button {
                             // 保存資料到"我的最愛"
-                            favorateButton2.toggle()
-                        } label: {
-                            if favorateButton2 {
-                                Image(systemName: "star.fill")
-                            } else {
-                                Image(systemName: "star")
+                            // TODO: 存進後端
+                            if !vm.showedMerchant.favorite {
+                                vm.putIntoMyFavList(customerUid: vm.showedMerchant.customerUid,merchantUid: vm.showedMerchant.uid)
                             }
+                        } label: {
+                            Image(systemName: vm.showedMerchant.favorite ? "star.fill" : "star")
                         }
                         .foregroundColor(Color(hex: "CD32DB"))
                     }.padding()
                     
                     HStack {
-                        Text("地址")
+                        Text("地址：" + vm.showedMerchant.location)
+                            .font(.title3)
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }.padding()
+                    
+                    HStack {
+                        Text("電話：" + vm.showedMerchant.phoneNumber)
                             .font(.title3)
                             .foregroundColor(.gray)
                         Spacer()
@@ -125,15 +131,13 @@ struct SearchView: View {
                     
                     Divider()
                     
-                    Spacer()
-                    
                     Text("店家介紹")
                         .font(.title3)
                         .fontWeight(.semibold)
                     RoundedRectangle(cornerRadius: 20)
                         .foregroundColor(Color(hex: "FFFBFB"))
                         .overlay {
-                            Text("店家Info")
+                            Text(vm.showedMerchant.intro == "" ? "..." : vm.showedMerchant.intro)
                         }
                         .padding([.leading, .trailing, .bottom], 10)
                 }
@@ -141,8 +145,8 @@ struct SearchView: View {
             
             ZStack {
                 Button {
-                    // 查詢頁面更新
                     // 紀錄被選擇的店家 食物資訊
+                    dataShowInHomeView()
                     selectedMerchant.toggle()
                 } label: {
                     if(selectedMerchant) {
@@ -150,17 +154,17 @@ struct SearchView: View {
                             .font(.body)
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "715428"))
-                            .frame(width: 100, height: 40)
+                            .frame(height: 40)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(Color(hex: "715428"), lineWidth: 2)
                             )
                     } else {
-                        Text("選擇店家")
+                        Text("選擇顯示此店家")
                             .font(.body)
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "715428"))
-                            .frame(width: 100, height: 40)
+                            .frame(height: 40)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(Color(hex: "715428"), lineWidth: 2)
@@ -172,14 +176,8 @@ struct SearchView: View {
                 HStack {
                     Spacer()
                     
-                    if selectedMerchant {
-                        Image(systemName: "checkmark.square")
-                            .foregroundColor(Color(hex: "715428"))
-                    }
-                    else {
-                        Image(systemName: "square")
-                            .foregroundColor(Color(hex: "715428"))
-                    }
+                    Image(systemName: selectedMerchant ? "checkmark.square" : "square")
+                        .foregroundColor(Color(hex: "715428"))
                 }
                 
             }
@@ -202,6 +200,8 @@ struct SearchView: View {
                                     HStack {
                                         Button {
                                             // TODO: 按下按鈕後跟後端要店家資訊
+                                            vm.getMerchantInfo(uid: vm.searchedMerchant[index].uid)
+                                            
                                             clearMerchantData()
                                             clearSearchButton()
                                         } label: {
@@ -225,15 +225,12 @@ struct SearchView: View {
                                         
                                         Button {
                                             // 保存資料到"我的最愛"
-                                            vm.searchedMerchant[index].myFav.toggle()
-                                            
+                                            if !vm.searchedMerchant[index].favorite {
+                                                vm.putIntoMyFavList(customerUid: vm.searchedMerchant[index].customerUid,merchantUid: vm.searchedMerchant[index].uid)
+                                            }
                                             // TODO: 要把myFav資料存起來
                                         } label: {
-                                            if vm.searchedMerchant[index].myFav {
-                                                Image(systemName: "star.fill")
-                                            } else {
-                                                Image(systemName: "star")
-                                            }
+                                            Image(systemName: vm.searchedMerchant[index].favorite ? "star.fill" : "star")
                                         }
                                         .frame(width: 30)
                                         .foregroundColor(Color(hex: "D6B6D9"))
@@ -282,5 +279,9 @@ struct SearchView: View {
     
     func clearMerchantData() {
         vm.merchantName = ""
+    }
+    
+    func dataShowInHomeView() {
+        ShareInfoManager.shared.merchant = vm.showedMerchant
     }
 }

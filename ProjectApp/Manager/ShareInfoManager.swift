@@ -11,8 +11,11 @@ class ShareInfoManager: ObservableObject {
     
     // Singleton
     static var shared = ShareInfoManager()
-    private init() { }
+    private init() {
+        self.merchant = MerchantInfoModel(customerUid: "",merchantUid: "", name: "")
+    }
     
+    // User Info
     @Published var isLogin: Bool = false
     @Published var uid: String = ""
     @Published var account: String = ""
@@ -20,8 +23,10 @@ class ShareInfoManager: ObservableObject {
     @Published var showPassword: String = ""
     @Published var email: String = ""
     
-    @Published var myFavMerchantID: [String] = []
-        
+    // Merchant Info
+    @Published var merchant: MerchantInfoModel
+//    @Published var myFavMerchants: [MerchantInfoModel] = []
+    
     func clearAll() {
         self.account.removeAll()
         self.password.removeAll()

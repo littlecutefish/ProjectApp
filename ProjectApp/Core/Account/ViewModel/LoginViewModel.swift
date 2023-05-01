@@ -37,8 +37,10 @@ class LoginViewModel: ObservableObject {
             case .success(let returnedResult):
                 let returnedData = returnedResult.0
                 guard let userInfo = try? JSONDecoder().decode(UserInfoModel.self, from: returnedData) else {
+                    print("no")
                     return
                 }
+                print("hi1")
                 await MainActor.run {
                     ShareInfoManager.shared.uid = userInfo.uid
                     ShareInfoManager.shared.account = userInfo.name
@@ -49,6 +51,7 @@ class LoginViewModel: ObservableObject {
                 print(rightAccount)
                 print(userInfo)
             case .failure(let errorStatus):
+                print("hi2")
                 self.rightAccount = false
                 print(rightAccount)
                 print(errorStatus.rawValue)

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainView: View {
 //    @EnvironmentObject var vm: MainViewModel
-    
+    @StateObject var vm = SearchViewModel()
     @State var sidebarPressed: Bool = false
     @State var title: String = "主頁"
     @State var icon: String = "house.fill"
@@ -22,6 +22,7 @@ struct MainView: View {
     @State var menuSidebarIcon: [String] = ["person.fill", "magnifyingglass", "star.fill", "rectangle.portrait.and.arrow.right"]
     
     @State var cheakToLogOut: Bool = false
+    @State var myFavPressed: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -85,12 +86,75 @@ struct MainView: View {
                             UITabBar.appearance().backgroundColor = .white
                         }
                         
+                        // TODO: 我的最愛介面
+                        if myFavPressed {
+                            Rectangle()
+                                .foregroundColor(Color(hex: "DCD1C3"))
+                            VStack {
+                                HStack {
+                                    Button {
+                                        // 取消的話回到主畫面
+                                        selectedTab = selectedTabItem[0]
+                                        myFavPressed = false
+                                    } label: {
+                                        Image(systemName: "arrowshape.turn.up.left.fill")
+                                        Text("取消").fontWeight(.bold)
+                                    }
+                                    .foregroundColor(Color(hex: "CC4D4D"))
+                                    .font(.title3)
+                                    .padding()
+                                    
+                                    Spacer()
+                                }
+                                // TODO: 顯示所有myfav的資訊
+                                
+                                ScrollView {
+                                    ForEach(vm.myFavMerchants.indices, id: \.self) { index in
+                                        HStack {
+                                            Button {
+                                            } label: {
+                                                Circle()
+                                                    .foregroundColor(.gray)
+                                                    .opacity(0.5)
+                                                    .overlay{
+                                                        Image(systemName: "person.fill")
+                                                    }
+                                                
+                                                Text(vm.myFavMerchants[index].name).font(.title2)
+                                                
+                                                Spacer()
+                                                
+                                                Text(vm.myFavMerchants[index].location) // 放地址
+                                                    .font(.callout)
+                                                    .foregroundColor(.black)
+                                                    .opacity(0.7)
+                                                    .frame(width: 80)
+                                            }
+                                            .foregroundColor(.black)
+                                            
+                                            Button {
+                                                // TODO: 要把myFav資料存起來
+                                            } label: {
+                                                Image(systemName: vm.myFavMerchants[index].favorite ? "star.fill" : "star")
+                                            }
+                                            .frame(width: 30)
+                                            .foregroundColor(Color(hex: "CC4D4D"))
+                                        }
+                                        .frame(height: 60)
+                                        .padding(5)
+                                        Divider()
+                                    }
+                                }
+                                Spacer()
+                            }
+                            .padding()
+                        }
+                        
                         // 如果點擊side bar的按鈕，會打開side bar欄
                         if sidebarPressed {
                             TopSideBarMenu
-                            // TODO: 加入我的最愛
                         }
-
+                        
                         // 二次確認是否要登出
                         if cheakToLogOut {
                             ZStack {
@@ -174,7 +238,9 @@ struct MainView: View {
                             Button(action: {
                                 title = menuSidebarItem[2]
                                 icon = menuSidebarIcon[2]
+                                myFavPressed = true
                                 sidebarPressed.toggle()
+                                vm.getMyFavList()
                             }, label: {
                                 HStack {
                                     Text(menuSidebarItem[2])
@@ -206,7 +272,7 @@ struct MainView: View {
                     
                     Spacer()
                 }
-                .padding(.top, -5)
+//                .padding(.top, -5)
             }
         }
     }
