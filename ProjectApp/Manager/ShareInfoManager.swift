@@ -13,6 +13,7 @@ class ShareInfoManager: ObservableObject {
     static var shared = ShareInfoManager()
     private init() {
         self.merchant = MerchantInfoModel(customerUid: "",merchantUid: "", name: "")
+        self.homeTable = TableInfoModel(merchantUid: "")
     }
     
     // User Info
@@ -26,6 +27,10 @@ class ShareInfoManager: ObservableObject {
     // Merchant Info
     @Published var merchant: MerchantInfoModel
 //    @Published var myFavMerchants: [MerchantInfoModel] = []
+    
+    // Table Info
+    @Published var homeTable: TableInfoModel
+    @Published var nowHomeMerchantUid: String = ""
     
     func clearAll() {
         self.account.removeAll()

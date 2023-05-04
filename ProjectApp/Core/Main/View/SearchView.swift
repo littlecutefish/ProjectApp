@@ -10,9 +10,11 @@ import SwiftUI
 struct SearchView: View {
     
     @StateObject var vm : SearchViewModel
+    @StateObject var homevm : HomeViewModel
     
     @State var searchButton: Bool = false
     @State var selectedMerchant: Bool = false
+    @State var selectMerchantNot200 : Bool = false
     
     var body: some View {
         ZStack {
@@ -53,6 +55,7 @@ struct SearchView: View {
                 Button {
                     vm.searchMerchantName()
                     searchButton = true
+                    selectedMerchant = false
                 } label: {
                     Image(systemName: "arrow.turn.down.left")
                 }
@@ -105,10 +108,13 @@ struct SearchView: View {
                         
                         Button {
                             // 保存資料到"我的最愛"
-                            // TODO: 存進後端
                             if !vm.showedMerchant.favorite {
                                 vm.putIntoMyFavList(customerUid: vm.showedMerchant.customerUid,merchantUid: vm.showedMerchant.uid)
                             }
+                            else {
+                                vm.deleteMyFavItem(customerUid: vm.showedMerchant.customerUid,merchantUid: vm.showedMerchant.uid)
+                            }
+                            vm.showedMerchant.favorite.toggle()
                         } label: {
                             Image(systemName: vm.showedMerchant.favorite ? "star.fill" : "star")
                         }
@@ -147,13 +153,26 @@ struct SearchView: View {
                 Button {
                     // 紀錄被選擇的店家 食物資訊
                     dataShowInHomeView()
+                    ShareInfoManager.shared.nowHomeMerchantUid = vm.showedMerchant.uid
                     selectedMerchant.toggle()
+                    if selectedMerchant {
+                        homevm.getTableInfo(merchantUid: vm.showedMerchant.uid)
+                    }
+                    else {
+                        // 表示主頁不會顯示畫面
+                        ShareInfoManager.shared.nowHomeMerchantUid = "-1"
+                    }
+//                    if homevm.nowStatus != 200 {
+                        // TODO: 還有個BUG...
+//                        merchantInfoHaveNoFood
+//                    }
                 } label: {
-                    if(selectedMerchant) {
+                    if selectedMerchant {
                         Text("已選擇店家")
                             .font(.body)
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "715428"))
+                            .padding()
                             .frame(height: 40)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
@@ -164,6 +183,7 @@ struct SearchView: View {
                             .font(.body)
                             .fontWeight(.bold)
                             .foregroundColor(Color(hex: "715428"))
+                            .padding()
                             .frame(height: 40)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
@@ -184,6 +204,27 @@ struct SearchView: View {
         }
     }
     
+    private var merchantInfoHaveNoFood: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .foregroundColor(Color(hex: "ECD2D2"))
+            VStack{
+                HStack {
+                    Spacer()
+                    Button {
+                        homevm.nowStatus = 200
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.black)
+                            .frame(width: 50, height: 50)
+                    }
+                    Text("此商家尚未準備好")
+                }
+            }
+            .frame(width: 200, height: 100)
+        }
+    }
+    
     private var searchSection: some View {
         // 搜尋下拉bar
         VStack {
@@ -200,7 +241,7 @@ struct SearchView: View {
                                     HStack {
                                         Button {
                                             // TODO: 按下按鈕後跟後端要店家資訊
-                                            vm.getMerchantInfo(uid: vm.searchedMerchant[index].uid)
+                                            vm.getMerchantInfo(customerUid: vm.searchedMerchant[index].customerUid, merchantUid: vm.searchedMerchant[index].uid)
                                             
                                             clearMerchantData()
                                             clearSearchButton()
@@ -228,7 +269,11 @@ struct SearchView: View {
                                             if !vm.searchedMerchant[index].favorite {
                                                 vm.putIntoMyFavList(customerUid: vm.searchedMerchant[index].customerUid,merchantUid: vm.searchedMerchant[index].uid)
                                             }
+                                            else {
+                                                vm.deleteMyFavItem(customerUid: vm.searchedMerchant[index].customerUid, merchantUid: vm.searchedMerchant[index].uid)
+                                            }
                                             // TODO: 要把myFav資料存起來
+                                            vm.searchedMerchant[index].favorite.toggle()
                                         } label: {
                                             Image(systemName: vm.searchedMerchant[index].favorite ? "star.fill" : "star")
                                         }

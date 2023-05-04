@@ -15,7 +15,7 @@ struct Object {
 
 struct HomeView: View {
     
-    @StateObject var vm: HomeViewModel = HomeViewModel()
+    @StateObject var vm: HomeViewModel
     
     @State var tableInformButton: Bool = false
     @State var emptyTableInformButton: Bool = false
@@ -44,11 +44,27 @@ struct HomeView: View {
             }
             .padding(32)
             .onAppear {
+                // 初始化
+                currentWaitingArray = [
+                    Object(name: "不顯示", selected: true),
+                    Object(name: "最短剩餘時間", selected: false),
+                    Object(name: "所有桌子資訊", selected: false)
+                ]
+                nowSelectedCheck = 0
+                emptyTableCount = 0
                 // 將"最短剩餘時間"的下拉bar，加入桌子的數量
                 arrayAppend(startID: 0)
             }
             
             // MARK: 如果沒有店家資料 會顯示最初始畫面
+            if ShareInfoManager.shared.homeTable.merchantName == "" {
+                backgroundSection
+                VStack {
+                    Image("Logo")
+                    Text("請在\"店家查詢\"頁面選擇一個店家").font(.title3)
+                    Spacer()
+                }
+            }
         }
         .navigationBarBackButtonHidden(true)
     }
@@ -71,7 +87,7 @@ struct HomeView: View {
     
     private var companyNameSection: some View {
         ZStack {
-            Text(vm.companyName)
+            Text(ShareInfoManager.shared.homeTable.merchantName)
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.black)
@@ -79,7 +95,7 @@ struct HomeView: View {
             
             RoundedRectangle(cornerRadius: 20)
             // 下方底線的width = 35*字數:330
-                .frame(width: 35*CGFloat(vm.companyName.count) <= 330 ? 35*CGFloat(vm.companyName.count) : 330 ,height: 30)
+                .frame(width: 35*CGFloat(ShareInfoManager.shared.homeTable.merchantName.count) <= 330 ? 35*CGFloat(ShareInfoManager.shared.homeTable.merchantName.count) : 330 ,height: 30)
                 .foregroundColor(Color(hex: "B08B2C").opacity(0.4))
                 .padding(.top, 20)
         }
@@ -133,7 +149,7 @@ struct HomeView: View {
                     )
                 
                 HStack {
-                    Text("最短剩餘時間")
+                    Text(currentWaitingArray[nowSelectedCheck].name)
                         .fontWeight(.bold)
                         .frame(width: 120)
                     
@@ -179,7 +195,7 @@ struct HomeView: View {
                     } label: {
                         Image(systemName: "chevron.down")
                             .foregroundColor(.black)
-                            .rotationEffect(Angle(degrees: tableInformButton ? 180 : 0))
+                            .rotationEffect(Angle(degrees: emptyTableInformButton ? 180 : 0))
                     }
                     .frame(width: 20)
                 }
@@ -203,26 +219,26 @@ struct HomeView: View {
             // drop down bar 第三個按鈕選擇（所有桌子資訊）
             else if nowSelectedCheck == 2 {
                 Rectangle()
-                    .frame(height: CGFloat(vm.table.count) * 35)
+                    .frame(height: CGFloat(ShareInfoManager.shared.homeTable.remainTime.count) * 35)
                     .foregroundColor(.black.opacity(0.1))
                 
                 // 顯示剩餘等待時間的screen
                 VStack {
-                    ForEach(0..<vm.numOfTable, id: \.self) { tableID in
+                    ForEach(ShareInfoManager.shared.homeTable.remainTime.indices, id: \.self) { tableID in
                         HStack {
-                            Text("\(vm.table[tableID].name)")
+                            Text("\(ShareInfoManager.shared.homeTable.remainTime[tableID].tableName)")
                                 .frame(width: 80)
                                 .withCustomModifierForWaitingTime()
                             
                             Image(systemName: "arrow.right")
                             
-                            if vm.table[tableID].remainingTime == 0 {
+                            if ShareInfoManager.shared.homeTable.remainTime[tableID].remainTime == "0" {
                                 Text("已為空桌")
                                     .frame(width: 120)
                                     .withCustomModifierForWaitingTime()
                             }
                             else {
-                                Text("剩餘：\(vm.table[tableID].remainingTime)分鐘")
+                                Text("剩餘：\(ShareInfoManager.shared.homeTable.remainTime[tableID].remainTime)分鐘")
                                     .frame(width: 120)
                                     .withCustomModifierForWaitingTime()
                             }
@@ -241,19 +257,19 @@ struct HomeView: View {
                     // 顯示剩餘等待時間的screen
                     VStack {
                         HStack {
-                            Text("\(vm.table[nowSelectedCheck-3].name)")
+                            Text("\(ShareInfoManager.shared.homeTable.remainTime[nowSelectedCheck-3].tableName)")
                                 .frame(width: 80)
                                 .withCustomModifierForWaitingTime()
                             
                             Image(systemName: "arrow.right")
                             
-                            if vm.table[nowSelectedCheck-3].remainingTime == 0 {
+                            if ShareInfoManager.shared.homeTable.remainTime[nowSelectedCheck-3].remainTime == "0" {
                                 Text("已為空桌")
                                     .frame(width: 120)
                                     .withCustomModifierForWaitingTime()
                             }
                             else {
-                                Text("剩餘：\(vm.table[nowSelectedCheck-3].remainingTime)分鐘")
+                                Text("剩餘：\(ShareInfoManager.shared.homeTable.remainTime[nowSelectedCheck-3].remainTime)分鐘")
                                     .frame(width: 120)
                                     .withCustomModifierForWaitingTime()
                             }
@@ -299,6 +315,7 @@ struct HomeView: View {
                                                 .frame(height: 30)
                                                 .padding(.trailing, 15)
                                         }
+                                            
                                     }
                                 }
                                 Divider()
@@ -324,7 +341,7 @@ struct HomeView: View {
                     
                     ScrollView {
                         VStack {
-                            ForEach(vm.table.indices, id: \.self) { data in
+                            ForEach(ShareInfoManager.shared.homeTable.remainTime.indices, id: \.self) { data in
                                 ZStack {
                                     // 判斷空桌狀態，如果是空的就多加綠色的背景
                                     if vm.emptyTablePressedDownScreen[data] == true {
@@ -332,7 +349,7 @@ struct HomeView: View {
                                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                                             .foregroundColor(Color(hex: "ACDCA0"))
                                     }
-                                    Text("\(vm.table[data].name)")
+                                    Text("\(ShareInfoManager.shared.homeTable.remainTime[data].tableName)")
                                 }
                                 .frame(height: 30)
                                 Divider()
@@ -357,46 +374,19 @@ struct HomeView: View {
     // 把最短剩餘時間的下拉欄append當前桌子數量。
     func arrayAppend(startID: Int) {
         var temp = startID
-        for _ in vm.table {
-            currentWaitingArray.append(Object(name: vm.table[temp].name, selected: false))
+        for _ in ShareInfoManager.shared.homeTable.remainTime {
+            currentWaitingArray.append(Object(name: ShareInfoManager.shared.homeTable.remainTime[temp].tableName, selected: false))
             temp += 1
         }
     }
-    
-//    // 計算空桌數量
-//    func emptyTableCountFunc() -> Int {
-//        var count : Int = 0
-//        var temp: Int = 0
-//        var emptyTable: String = ""
-//
-//        // clear emptyString
-//        emptyString = ""
-//
-//        for index in vm.table.indices {
-//            if vm.table[index].remainingTime == 0 {
-//                count += 1
-//                emptyString.append(vm.table[index].name)
-//                emptyTablePressedDownScreen.append(true)
-//                temp += 1
-//                if temp != count {
-//                    emptyTable.append(",")
-//                }
-//            }
-//            else {
-//                emptyTablePressedDownScreen.append(false)
-//            }
-//        }
-//
-//        return count
-//    }
 }
 
 // 判斷"最短剩餘時間"的桌子
 struct TimeSort: View {
-    var temp: [TableInform] = []
+    var temp: [RemainTime] = []
     
     init(vm: HomeViewModel) {
-        temp = vm.table.sorted(by: TableInform.sortByTime)
+        temp = ShareInfoManager.shared.homeTable.remainTime.sorted(by: RemainTime.sortByTime)
     }
     
     var body: some View {
@@ -407,10 +397,10 @@ struct TimeSort: View {
             
             VStack {
                 ForEach(temp.indices, id: \.self) { index in
-                    if temp[index].remainingTime == temp[0].remainingTime {
+                    if temp[index].remainTime == temp[0].remainTime {
                         HStack {
                             // 顯示桌子名稱
-                            Text("\(temp[index].name)")
+                            Text("\(temp[index].tableName)")
                                 .foregroundColor(.black)
                                 .frame(width: 80, height: 25)
                                 .background(Color.white)
@@ -423,7 +413,7 @@ struct TimeSort: View {
                             Image(systemName: "arrow.right")
                             
                             // 顯示桌子當前資訊
-                            if temp[index].remainingTime == 0 {
+                            if temp[index].remainTime == "0" {
                                 Text("已為空桌")
                                     .foregroundColor(.black)
                                     .frame(width: 120, height: 25)
@@ -435,7 +425,7 @@ struct TimeSort: View {
                                     .padding(4)
                             }
                             else {
-                                Text("剩餘：\(temp[index].remainingTime)分鐘")
+                                Text("剩餘：\(temp[index].remainTime)分鐘")
                                     .foregroundColor(.black)
                                     .frame(width: 120, height: 25)
                                     .background(Color.white)
@@ -457,11 +447,12 @@ struct TimeSort: View {
         var c = i
         
         for index in temp.indices {
-            if temp[index].remainingTime == temp[0].remainingTime {
+            if temp[index].remainTime == temp[0].remainTime {
                 c += 1
             }
         }
         
         return c
     }
+    
 }

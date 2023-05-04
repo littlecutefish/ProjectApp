@@ -11,27 +11,46 @@ import Combine
 class HomeViewModel: ObservableObject {
     
     // Published Variable
-    @Published var companyName : String = "小魚兒 好粗餐廳"
-    @Published var numOfTable : Int = 0
-    @Published var table: [TableInform] = []
+    @Published var nowStatus : Int? = nil
     
-    // Init Function
-    init() {
-        self.table = [
-            // MARK: 需要跟後端拿 桌子的ID、桌子名稱、剩餘時間
-            TableInform(name: "A", remainingTime: 1),
-            TableInform(name: "B", remainingTime: 0),
-            TableInform(name: "C", remainingTime: 5),
-            TableInform(name: "D", remainingTime: 0),
-            TableInform(name: "E", remainingTime: 0),
-            TableInform(name: "F", remainingTime: 6)
-        ]
-        self.numOfTable = table.count
-    }
+    // Private Variable
+    private var getTableInfoURL = "http://120.126.151.186/API/eating/food/customer"
     
     // Public Variable
-    var sortedTable: [TableInform]{
-        table.sorted(by: TableInform.sortByTime)
+    func getTableInfo(merchantUid: String) {
+        let tableInfo = TableInfoModel(merchantUid: merchantUid)
+        print("getTableInfo")
+        Task {
+            let getResult = await DatabaseManager.shared.uploadData(to: getTableInfoURL, data: tableInfo, httpMethod: "POST")
+            switch getResult {
+            case .success(let returnedResult):
+                switch returnedResult.1 {
+                case 200:
+                    nowStatus = 200
+                    let returnedData = returnedResult.0
+                    guard let Info = try? JSONDecoder().decode(TableInfoModel.self, from: returnedData) else {
+                        return
+                    }
+                    await MainActor.run {
+                        ShareInfoManager.shared.homeTable = Info
+                    }
+                    print("success!")
+                    print(Info)
+                    print(ShareInfoManager.shared.homeTable.remainTime.indices)
+                    break
+                default:
+                    nowStatus = returnedResult.1
+                    print(returnedResult.1)
+                }
+            case .failure(let errorStatus):
+                print("fail")
+                print(errorStatus.rawValue)
+            }
+        }
+    }
+    
+    var sortedTable: [RemainTime]{
+        ShareInfoManager.shared.homeTable.remainTime.sorted(by: RemainTime.sortByTime)
     }
     var emptyTablePressedDownScreen: [Bool] = []
     
@@ -39,8 +58,8 @@ class HomeViewModel: ObservableObject {
     func emptyTableCountFunc() -> Int {
         var count : Int = 0
         
-        for index in self.table.indices {
-            if self.table[index].remainingTime == 0 {
+        for index in ShareInfoManager.shared.homeTable.remainTime.indices {
+            if ShareInfoManager.shared.homeTable.remainTime[index].remainTime == "0" {
                 count += 1
             }
         }
@@ -56,9 +75,9 @@ class HomeViewModel: ObservableObject {
         // 先清空陣列
         self.emptyTablePressedDownScreen.removeAll()
         
-        for index in self.table.indices {
-            if self.table[index].remainingTime == 0 {
-                emptyTable.append(self.table[index].name)
+        for index in ShareInfoManager.shared.homeTable.remainTime.indices {
+            if ShareInfoManager.shared.homeTable.remainTime[index].remainTime == "0" {
+                emptyTable.append(ShareInfoManager.shared.homeTable.remainTime[index].tableName)
                 self.emptyTablePressedDownScreen.append(true)
                 temp += 1
                 if temp != count {
@@ -70,16 +89,5 @@ class HomeViewModel: ObservableObject {
             }
         }
         return emptyTable
-    }
-}
-
-struct TableInform: Identifiable {
-    let id = UUID()
-    var name : String
-    var remainingTime : Int
-    
-    // 把所有桌子的時間做排序，最短的移到前面，
-    static func sortByTime(_ t1: TableInform, _ t2: TableInform) -> Bool {
-        return t1.remainingTime < t2.remainingTime
     }
 }

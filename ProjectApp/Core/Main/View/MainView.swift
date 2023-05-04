@@ -10,6 +10,8 @@ import SwiftUI
 struct MainView: View {
 //    @EnvironmentObject var vm: MainViewModel
     @StateObject var vm = SearchViewModel()
+    @StateObject var homevm = HomeViewModel()
+    
     @State var sidebarPressed: Bool = false
     @State var title: String = "主頁"
     @State var icon: String = "house.fill"
@@ -21,8 +23,9 @@ struct MainView: View {
     @State var menuSidebarItem: [String] = ["我的帳號", "店家查詢", "最愛店家", "登出"]
     @State var menuSidebarIcon: [String] = ["person.fill", "magnifyingglass", "star.fill", "rectangle.portrait.and.arrow.right"]
     
-    @State var cheakToLogOut: Bool = false
+    @State var checkToLogOut: Bool = false
     @State var myFavPressed: Bool = false
+    @State var checkMyFavPressed: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -38,12 +41,11 @@ struct MainView: View {
                     ZStack {
                         TabView(selection: $selectedTab)  {
                             // 左下方的主頁tabview
-                            HomeView()
+                            HomeView(vm: HomeViewModel())
                                 .tabItem {
                                     Image(systemName: "house.fill")
                                     Text("主頁")
                                 }
-                                .tag("main")
                                 .onAppear{
                                     title = "主頁"
                                     icon = "house.fill"
@@ -51,9 +53,14 @@ struct MainView: View {
                                         sidebarPressed.toggle()
                                     }
                                 }
+                                .onAppear{
+                                    // 即時更新
+                                    ShareInfoManager.shared.homeTable.merchantName = ShareInfoManager.shared.homeTable.merchantName
+                                }
+                                .tag("main")
                             
-                            // 中下方的地圖tabview
-                            SearchView(vm: SearchViewModel())
+                            // 中下方的tabview
+                            SearchView(vm: SearchViewModel(), homevm: HomeViewModel())
                                 .tabItem {
                                     Image(systemName: "magnifyingglass")
                                     Text("店家查詢")
@@ -85,8 +92,8 @@ struct MainView: View {
                         .onAppear() {
                             UITabBar.appearance().backgroundColor = .white
                         }
+                        .disabled(checkToLogOut)
                         
-                        // TODO: 我的最愛介面
                         if myFavPressed {
                             Rectangle()
                                 .foregroundColor(Color(hex: "DCD1C3"))
@@ -103,15 +110,21 @@ struct MainView: View {
                                     .foregroundColor(Color(hex: "CC4D4D"))
                                     .font(.title3)
                                     .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color(hex: "CC4D4D"), lineWidth: 2)
+                                    )
+                                    .padding()
                                     
                                     Spacer()
                                 }
-                                // TODO: 顯示所有myfav的資訊
                                 
                                 ScrollView {
                                     ForEach(vm.myFavMerchants.indices, id: \.self) { index in
                                         HStack {
                                             Button {
+                                                homevm.getTableInfo(merchantUid: vm.myFavMerchants[index].uid)
+                                                checkMyFavPressed.toggle()
                                             } label: {
                                                 Circle()
                                                     .foregroundColor(.gray)
@@ -132,8 +145,10 @@ struct MainView: View {
                                             }
                                             .foregroundColor(.black)
                                             
+                                            
                                             Button {
-                                                // TODO: 要把myFav資料存起來
+                                                vm.deleteMyFavItem(customerUid: vm.myFavMerchants[index].customerUid, merchantUid: vm.myFavMerchants[index].uid)
+                                                vm.myFavMerchants[index].favorite.toggle()
                                             } label: {
                                                 Image(systemName: vm.myFavMerchants[index].favorite ? "star.fill" : "star")
                                             }
@@ -148,15 +163,60 @@ struct MainView: View {
                                 Spacer()
                             }
                             .padding()
+                            .disabled(checkToLogOut)
+                        }
+                        
+                        if checkMyFavPressed {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .foregroundColor(Color.white)
+                                    .shadow(radius: 10)
+                                VStack {
+                                    Text("確定要選擇此店家？")
+                                        .font(.title3)
+                                    HStack {
+                                        Button {
+                                            checkMyFavPressed.toggle()
+                                            // 跳到查詢頁面
+                                            selectedTab = selectedTabItem[0]
+                                            myFavPressed = false
+                                        } label: {
+                                            Text("確認")
+                                                .padding()
+                                                .background {
+                                                    RoundedRectangle(cornerRadius: 5)
+                                                        .stroke(Color.black, lineWidth: 2)
+                                                }
+                                        }
+                                        
+                                        Button {
+                                            checkMyFavPressed.toggle()
+                                        } label: {
+                                            Text("取消")
+                                                .padding()
+                                                .background {
+                                                    RoundedRectangle(cornerRadius: 5)
+                                                        .stroke(Color.black, lineWidth: 2)
+                                                }
+                                        }
+                                    }
+                                    .foregroundColor(.black)
+                                    .frame(height: 25)
+                                }
+                                .padding(5)
+                            }
+                            .frame(width: 200, height: 150)
+                            .disabled(checkToLogOut)
                         }
                         
                         // 如果點擊side bar的按鈕，會打開side bar欄
                         if sidebarPressed {
                             TopSideBarMenu
+                                .disabled(checkToLogOut)
                         }
-                        
+                    
                         // 二次確認是否要登出
-                        if cheakToLogOut {
+                        if checkToLogOut {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 20)
                                     .foregroundColor(Color(hex: "ECD2D2"))
@@ -168,6 +228,7 @@ struct MainView: View {
                                     HStack {
                                         Button {
                                             ShareInfoManager.shared.clearAll()
+                                            myFavPressed = false
                                             ShareInfoManager.shared.isLogin.toggle()
                                         } label: {
                                             Text("確認登出")
@@ -180,7 +241,7 @@ struct MainView: View {
                                         
                                         Button {
                                             sidebarPressed.toggle()
-                                            cheakToLogOut.toggle()
+                                            checkToLogOut.toggle()
                                         } label: {
                                             Text("取消")
                                                 .padding()
@@ -222,6 +283,7 @@ struct MainView: View {
                                     title = menuSidebarItem[index]
                                     icon = menuSidebarIcon[index]
                                     sidebarPressed.toggle()
+                                    myFavPressed = false
                                 }, label: {
                                     HStack {
                                         Text(menuSidebarItem[index])
@@ -254,7 +316,7 @@ struct MainView: View {
                             
                             // 登出
                             Button(action: {
-                                cheakToLogOut.toggle()
+                                checkToLogOut.toggle()
                             }, label: {
                                 HStack {
                                     Text(menuSidebarItem[3])
@@ -272,7 +334,6 @@ struct MainView: View {
                     
                     Spacer()
                 }
-//                .padding(.top, -5)
             }
         }
     }
@@ -323,4 +384,3 @@ struct topBarItem: View {
         .frame(height: 60)
     }
 }
-

@@ -23,13 +23,13 @@ class MainViewModel: ObservableObject {
     var companyAddress: String
     
     // 桌子的資訊
-    var numOfTable : Int
-    var table : [TableInform]
+//    var numOfTable : Int
+//    var table : [RemainTime]
     var emptyTablePressedDownScreen: [Bool]
     
-    var sortedTable: [TableInform] {
-        table.sorted(by: TableInform.sortByTime)
-    }
+//    var sortedTable: [TableInform] {
+//        table.sorted(by: TableInform.sortByTime)
+//    }
     
     init() {
         account = ""
@@ -39,16 +39,16 @@ class MainViewModel: ObservableObject {
         
         companyName = "小魚兒 好粗餐廳"
         companyAddress = ""
-        
-        table = [
-            TableInform(name: "A", remainingTime: 1),
-            TableInform(name: "B", remainingTime: 0),
-            TableInform(name: "C", remainingTime: 5),
-            TableInform(name: "D", remainingTime: 0),
-            TableInform(name: "E", remainingTime: 0),
-            TableInform(name: "F", remainingTime: 6)
-        ]
-        numOfTable = self.table.count
+//
+//        table = [
+//            TableInform(name: "A", remainingTime: 1),
+//            TableInform(name: "B", remainingTime: 0),
+//            TableInform(name: "C", remainingTime: 5),
+//            TableInform(name: "D", remainingTime: 0),
+//            TableInform(name: "E", remainingTime: 0),
+//            TableInform(name: "F", remainingTime: 6)
+//        ]
+//        numOfTable = self.table.count
         emptyTablePressedDownScreen = []
     }
 }
