@@ -31,6 +31,7 @@ class ShareInfoManager: ObservableObject {
     // Table Info
     @Published var homeTable: TableInfoModel
     @Published var nowHomeMerchantUid: String = ""
+    @Published var nowStatusIsNot200 : Bool = false
     
     func clearAll() {
         self.account.removeAll()

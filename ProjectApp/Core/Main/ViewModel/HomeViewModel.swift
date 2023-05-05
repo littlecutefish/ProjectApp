@@ -11,7 +11,7 @@ import Combine
 class HomeViewModel: ObservableObject {
     
     // Published Variable
-    @Published var nowStatus : Int? = nil
+    @Published var status : Bool = false
     
     // Private Variable
     private var getTableInfoURL = "http://120.126.151.186/API/eating/food/customer"
@@ -19,28 +19,29 @@ class HomeViewModel: ObservableObject {
     // Public Variable
     func getTableInfo(merchantUid: String) {
         let tableInfo = TableInfoModel(merchantUid: merchantUid)
-        print("getTableInfo")
         Task {
             let getResult = await DatabaseManager.shared.uploadData(to: getTableInfoURL, data: tableInfo, httpMethod: "POST")
             switch getResult {
             case .success(let returnedResult):
                 switch returnedResult.1 {
                 case 200:
-                    nowStatus = 200
                     let returnedData = returnedResult.0
                     guard let Info = try? JSONDecoder().decode(TableInfoModel.self, from: returnedData) else {
                         return
                     }
                     await MainActor.run {
                         ShareInfoManager.shared.homeTable = Info
+                        status = false
                     }
                     print("success!")
                     print(Info)
                     print(ShareInfoManager.shared.homeTable.remainTime.indices)
                     break
                 default:
-                    nowStatus = returnedResult.1
                     print(returnedResult.1)
+                    await MainActor.run {
+                        status = true
+                    }
                 }
             case .failure(let errorStatus):
                 print("fail")

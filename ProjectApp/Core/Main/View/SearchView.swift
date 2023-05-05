@@ -30,6 +30,28 @@ struct SearchView: View {
                     if !searchButton {
                         storeInformSection
                     }
+                    // 如果選擇的店家無食物資訊
+                    if homevm.status {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 20)
+                                .foregroundColor(Color(hex: "ECD2D2"))
+                            VStack{
+                                HStack {
+                                    Spacer()
+                                    Button {
+                                        homevm.status.toggle()
+                                        selectedMerchant = false
+                                    } label: {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(.black)
+                                            .frame(width: 50, height: 50)
+                                    }
+                                }
+                                Text("此商家尚未準備好")
+                            }
+                        }
+                        .frame(width: 200, height: 100)
+                    }
                 }
                 .padding([.leading, .trailing],35)
             }
@@ -162,10 +184,6 @@ struct SearchView: View {
                         // 表示主頁不會顯示畫面
                         ShareInfoManager.shared.nowHomeMerchantUid = "-1"
                     }
-//                    if homevm.nowStatus != 200 {
-                        // TODO: 還有個BUG...
-//                        merchantInfoHaveNoFood
-//                    }
                 } label: {
                     if selectedMerchant {
                         Text("已選擇店家")
@@ -204,27 +222,6 @@ struct SearchView: View {
         }
     }
     
-    private var merchantInfoHaveNoFood: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .foregroundColor(Color(hex: "ECD2D2"))
-            VStack{
-                HStack {
-                    Spacer()
-                    Button {
-                        homevm.nowStatus = 200
-                    } label: {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.black)
-                            .frame(width: 50, height: 50)
-                    }
-                    Text("此商家尚未準備好")
-                }
-            }
-            .frame(width: 200, height: 100)
-        }
-    }
-    
     private var searchSection: some View {
         // 搜尋下拉bar
         VStack {
@@ -240,7 +237,7 @@ struct SearchView: View {
                                 ForEach(vm.searchedMerchant.indices, id: \.self) { index in
                                     HStack {
                                         Button {
-                                            // TODO: 按下按鈕後跟後端要店家資訊
+                                            // 按下按鈕後跟後端要店家資訊
                                             vm.getMerchantInfo(customerUid: vm.searchedMerchant[index].customerUid, merchantUid: vm.searchedMerchant[index].uid)
                                             
                                             clearMerchantData()
@@ -272,7 +269,7 @@ struct SearchView: View {
                                             else {
                                                 vm.deleteMyFavItem(customerUid: vm.searchedMerchant[index].customerUid, merchantUid: vm.searchedMerchant[index].uid)
                                             }
-                                            // TODO: 要把myFav資料存起來
+                                            // 要把myFav資料存起來
                                             vm.searchedMerchant[index].favorite.toggle()
                                         } label: {
                                             Image(systemName: vm.searchedMerchant[index].favorite ? "star.fill" : "star")
